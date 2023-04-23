@@ -3,7 +3,6 @@ const Schema = mongoose.Schema;
 
 const pocketSchema = new Schema(
   {
-    id: { type: Number, required: true },
     name: { type: String, required: true },
     amount: { type: Number, required: true },
   },
@@ -12,50 +11,31 @@ const pocketSchema = new Schema(
 
 const pocketModel = mongoose.model("Pockets", pocketSchema);
 
-const fakePocketData = [
-  {
-    id: 1,
-    name: "Entertainment",
-    amount: 1000,
-  },
-  {
-    id: 2,
-    name: "Food",
-    amount: 2000,
-  },
-  {
-    id: 3,
-    name: "Bills",
-    amount: 3000,
-  },
-  {
-    id: 4,
-    name: "Subscriptions",
-    amount: 200,
-  },
-  {
-    id: 5,
-    name: "Daycare",
-    amount: 3000,
-  },
-  {
-    id: 6,
-    name: "Daycare",
-    amount: 3000,
-  },
-  {
-    id: 7,
-    name: "Daycare",
-    amount: 3000,
-  },
-  {
-    id: 8,
-    name: "Daycare",
-    amount: 3000,
-  },
-];
-
+// Get all pockets
 exports.list = () => {
-  //return pocketModel.find();
-  return Promise.resolve(fakePocketData);
+  return pocketModel.find();
+};
+
+// Get a single pocket by id
+exports.getById = (id) => {
+  return pocketModel.findById(id);
+};
+
+// Create a new pocket or multiple pockets
+exports.insert = (pocketData) => {
+  // throw error if pocketData is not provided
+  if (!pocketData) throw new Error("pocketData is required");
+  if (!pocketData.length) {
+    // insert single document if pocketData is not an array
+    const pocket = new pocketModel(pocketData);
+    return pocket.save();
+  } else {
+    // insert multiple documents if pocketData is an array
+    return pocketModel.insertMany(pocketData);
+  }
+};
+
+// Delete all pockets
+exports.remove = () => {
+  return pocketModel.deleteMany();
 };
