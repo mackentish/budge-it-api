@@ -1,4 +1,4 @@
-const PocketModel = require("../models/pockets.model.ts");
+const PocketModel = require("./pockets.model.ts");
 
 // GET /pockets
 exports.list = (req, res) => {
