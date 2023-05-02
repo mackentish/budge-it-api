@@ -1,6 +1,6 @@
 const PocketModel = require("./pockets.model.ts");
 
-// GET /pockets
+// GET
 exports.list = (req, res) => {
   PocketModel.list()
     .then((result) => {
@@ -21,7 +21,18 @@ exports.getById = (req, res) => {
     });
 };
 
-// POST /pockets
+// PUT
+exports.updateById = (req, res) => {
+  PocketModel.updateById(req.params.pocketId, req.body)
+    .then((result) => {
+      res.status(200).send(result);
+    })
+    .catch((err) => {
+      res.status(500).send(err);
+    });
+};
+
+// POST
 exports.insert = (req, res) => {
   PocketModel.insert(req.body)
     .then((result) => {
@@ -32,7 +43,7 @@ exports.insert = (req, res) => {
     });
 };
 
-// DELETE /pockets
+// DELETE
 exports.remove = (req, res) => {
   PocketModel.remove()
     .then((result) => {

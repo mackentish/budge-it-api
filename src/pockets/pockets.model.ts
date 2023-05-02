@@ -21,6 +21,11 @@ exports.getById = (id) => {
   return pocketModel.findById(id);
 };
 
+// Update a pocket by id
+exports.updateById = (id, pocketData) => {
+  return pocketModel.findByIdAndUpdate(id, pocketData, { new: true });
+};
+
 // Create a new pocket or multiple pockets
 exports.insert = (pocketData) => {
   // throw error if pocketData is not provided
