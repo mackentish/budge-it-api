@@ -1,55 +1,88 @@
-const PocketModel = require("./pockets.model.ts");
+import Pocket, { IPocket } from "./pockets.model";
+import { Request, Response } from "express";
 
 // GET
-exports.list = (req, res) => {
-  PocketModel.list()
+async function list(req: Request, res: Response) {
+  return Pocket.find()
     .then((result) => {
       res.status(200).send(result);
     })
     .catch((err) => {
       res.status(500).send(err);
     });
-};
+}
 
-exports.getById = (req, res) => {
-  PocketModel.getById(req.params.pocketId)
+async function getById(req: Request, res: Response) {
+  return Pocket.findById(req.params.pocketId)
     .then((result) => {
       res.status(200).send(result);
     })
     .catch((err) => {
       res.status(500).send(err);
     });
-};
+}
 
 // PUT
-exports.updateById = (req, res) => {
-  PocketModel.updateById(req.params.pocketId, req.body)
+async function updateById(req: Request, res: Response) {
+  return Pocket.findByIdAndUpdate(req.params.pocketId, req.body, { new: true })
     .then((result) => {
       res.status(200).send(result);
     })
     .catch((err) => {
       res.status(500).send(err);
     });
-};
+}
 
 // POST
-exports.insert = (req, res) => {
-  PocketModel.insert(req.body)
+async function insert(req: Request, res: Response) {
+  const pocket = new Pocket(req.body);
+  return pocket
+    .save()
     .then((result) => {
       res.status(201).send(result);
     })
     .catch((err) => {
       res.status(500).send(err);
     });
-};
+}
+
+async function insertMany(req: Request, res: Response) {
+  return Pocket.insertMany(req.body)
+    .then((result) => {
+      res.status(201).send(result);
+    })
+    .catch((err) => {
+      res.status(500).send(err);
+    });
+}
 
 // DELETE
-exports.remove = (req, res) => {
-  PocketModel.remove()
+async function removeAll(req: Request, res: Response) {
+  return Pocket.deleteMany()
     .then((result) => {
       res.status(200).send("All pockets have been removed");
     })
     .catch((err) => {
       res.status(500).send(err);
     });
+}
+
+async function removeById(req: Request, res: Response) {
+  return Pocket.findByIdAndDelete(req.params.pocketId)
+    .then((result) => {
+      res.status(200).send("Pocket has been removed");
+    })
+    .catch((err) => {
+      res.status(500).send(err);
+    });
+}
+
+export default {
+  list,
+  getById,
+  updateById,
+  insert,
+  insertMany,
+  removeAll,
+  removeById,
 };
