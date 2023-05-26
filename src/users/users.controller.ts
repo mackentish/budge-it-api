@@ -1,9 +1,9 @@
-import Pocket from "./pockets.model";
+import User from "./users.model";
 import { Request, Response } from "express";
 
 // GET
 async function list(req: Request, res: Response) {
-  return Pocket.find()
+  return User.find()
     .then((result) => {
       res.status(200).send(result);
     })
@@ -13,7 +13,7 @@ async function list(req: Request, res: Response) {
 }
 
 async function getById(req: Request, res: Response) {
-  return Pocket.findById(req.params.pocketId)
+  return User.findById(req.params.userId)
     .then((result) => {
       res.status(200).send(result);
     })
@@ -24,7 +24,7 @@ async function getById(req: Request, res: Response) {
 
 // PUT
 async function updateById(req: Request, res: Response) {
-  return Pocket.findByIdAndUpdate(req.params.pocketId, req.body, { new: true })
+  return User.findByIdAndUpdate(req.params.userId, req.body, { new: true })
     .then((result) => {
       res.status(200).send(result);
     })
@@ -35,8 +35,8 @@ async function updateById(req: Request, res: Response) {
 
 // POST
 async function insert(req: Request, res: Response) {
-  const pocket = new Pocket(req.body);
-  return pocket
+  const user = new User(req.body);
+  return user
     .save()
     .then((result) => {
       res.status(201).send(result);
@@ -47,7 +47,7 @@ async function insert(req: Request, res: Response) {
 }
 
 async function insertMany(req: Request, res: Response) {
-  return Pocket.insertMany(req.body)
+  return User.insertMany(req.body)
     .then((result) => {
       res.status(201).send(result);
     })
@@ -56,11 +56,22 @@ async function insertMany(req: Request, res: Response) {
     });
 }
 
+async function login(req: Request, res: Response) {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email: email, password: password });
+  if (user) {
+    res.status(200).send(user);
+  } else {
+    res.status(500).send("User not found");
+  }
+  return;
+}
+
 // DELETE
 async function removeAll(req: Request, res: Response) {
-  return Pocket.deleteMany()
+  return User.deleteMany()
     .then((result) => {
-      res.status(200).send("All pockets have been removed");
+      res.status(200).send("All users have been removed");
     })
     .catch((err) => {
       res.status(500).send(err);
@@ -68,9 +79,9 @@ async function removeAll(req: Request, res: Response) {
 }
 
 async function removeById(req: Request, res: Response) {
-  return Pocket.findByIdAndDelete(req.params.pocketId)
+  return User.findByIdAndDelete(req.params.pocketId)
     .then((result) => {
-      res.status(200).send("Pocket has been removed");
+      res.status(200).send("User has been removed");
     })
     .catch((err) => {
       res.status(500).send(err);
@@ -83,6 +94,7 @@ export default {
   updateById,
   insert,
   insertMany,
+  login,
   removeAll,
   removeById,
 };
