@@ -3,13 +3,14 @@ import { Schema, model } from "mongoose";
 export interface IPocket {
   name: string;
   amount: number;
-  user: string;
+  user: Schema.Types.ObjectId;
 }
 
 const pocketSchema = new Schema<IPocket>(
   {
     name: { type: String, required: true },
     amount: { type: Number, required: true },
+    user: { type: Schema.Types.ObjectId, ref: "Users" },
   },
   { timestamps: true }
 );

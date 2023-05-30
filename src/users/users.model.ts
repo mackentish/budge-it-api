@@ -5,7 +5,7 @@ export interface IUser {
   lastName: string;
   email: string;
   password: string;
-  pockets: string[];
+  pockets: Schema.Types.ObjectId[];
 }
 
 const userSchema = new Schema<IUser>(
