@@ -3,6 +3,7 @@ import { Schema, model } from "mongoose";
 export interface IPocket {
   name: string;
   amount: number;
+  user: string;
 }
 
 const pocketSchema = new Schema<IPocket>(
