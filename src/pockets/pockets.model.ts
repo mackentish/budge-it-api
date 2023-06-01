@@ -10,7 +10,7 @@ const pocketSchema = new Schema<IPocket>(
   {
     name: { type: String, required: true },
     amount: { type: Number, required: true },
-    user: { type: Schema.Types.ObjectId, ref: "Users" },
+    user: { type: Schema.Types.ObjectId, ref: "Users", required: true },
   },
   { timestamps: true }
 );
