@@ -1,4 +1,5 @@
 import User from "./users.model";
+import Pocket from "../pockets/pockets.model";
 import { Request, Response } from "express";
 
 // GET
@@ -60,6 +61,8 @@ async function login(req: Request, res: Response) {
   const { email, password } = req.body;
   const user = await User.findOne({ email: email, password: password });
   if (user) {
+    const userPockets = await Pocket.find({ user: user._id }).exec();
+    user.pockets = userPockets;
     res.status(200).send(user);
   } else {
     res.status(500).send("User not found");

@@ -10,6 +10,6 @@ const userSchema = new mongoose_1.Schema({
         unique: true,
     },
     password: { type: String, required: true },
-    pockets: [{ type: mongoose_1.Schema.Types.ObjectId, ref: "Pockets" }],
+    pockets: [],
 }, { timestamps: true });
 exports.default = (0, mongoose_1.model)("Users", userSchema);

@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const users_model_1 = __importDefault(require("./users.model"));
+const pockets_model_1 = __importDefault(require("../pockets/pockets.model"));
 // GET
 function list(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -78,6 +79,8 @@ function login(req, res) {
         const { email, password } = req.body;
         const user = yield users_model_1.default.findOne({ email: email, password: password });
         if (user) {
+            const userPockets = yield pockets_model_1.default.find({ user: user._id }).exec();
+            user.pockets = userPockets;
             res.status(200).send(user);
         }
         else {
