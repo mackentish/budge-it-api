@@ -2,7 +2,7 @@ import PocketsController from "./pockets.controller";
 import { Express } from "express";
 
 export default function routesConfig(app: Express) {
-  app.get("/pockets", [PocketsController.list]);
+  app.get("/pockets/:userId", [PocketsController.list]);
   app.get("/pockets/:pocketId", [PocketsController.getById]);
 
   app.put("/pockets/:pocketId", [PocketsController.updateById]);
@@ -10,6 +10,6 @@ export default function routesConfig(app: Express) {
   app.post("/pockets", [PocketsController.insert]);
   app.post("/pockets/many", [PocketsController.insertMany]);
 
-  app.delete("/pockets", [PocketsController.removeAll]);
+  app.delete("/pockets/:userId", [PocketsController.removeAll]);
   app.delete("/pockets/:pocketId", [PocketsController.removeById]);
 }

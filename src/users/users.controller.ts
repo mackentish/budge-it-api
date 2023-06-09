@@ -61,8 +61,6 @@ async function login(req: Request, res: Response) {
   const { email, password } = req.body;
   const user = await User.findOne({ email: email, password: password });
   if (user) {
-    const userPockets = await Pocket.find({ user: user._id }).exec();
-    user.pockets = userPockets;
     res.status(200).send(user);
   } else {
     res.status(401).send("User not found");

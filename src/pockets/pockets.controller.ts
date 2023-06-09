@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 
 // GET
 async function list(req: Request, res: Response) {
-  return Pocket.find()
+  return Pocket.find({ user: req.params.userId })
     .then((result) => {
       res.status(200).send(result);
     })
@@ -58,7 +58,7 @@ async function insertMany(req: Request, res: Response) {
 
 // DELETE
 async function removeAll(req: Request, res: Response) {
-  return Pocket.deleteMany()
+  return Pocket.deleteMany({ user: req.params.userId })
     .then((result) => {
       res.status(200).send("All pockets have been removed");
     })
