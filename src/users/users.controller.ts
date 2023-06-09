@@ -65,7 +65,7 @@ async function login(req: Request, res: Response) {
     user.pockets = userPockets;
     res.status(200).send(user);
   } else {
-    res.status(500).send("User not found");
+    res.status(401).send("User not found");
   }
   return;
 }
