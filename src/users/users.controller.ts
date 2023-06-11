@@ -1,5 +1,4 @@
 import User from "./users.model";
-import Pocket from "../pockets/pockets.model";
 import { Request, Response } from "express";
 
 // GET
@@ -14,13 +13,16 @@ async function list(req: Request, res: Response) {
 }
 
 async function getById(req: Request, res: Response) {
-  return User.findById(req.params.userId)
-    .then((result) => {
-      res.status(200).send(result);
-    })
-    .catch((err) => {
-      res.status(500).send(err);
-    });
+  try {
+    const user = await User.findById(req.params.userId).exec();
+    if (user) {
+      res.status(200).send(user);
+    } else {
+      res.status(401).send("User not found");
+    }
+  } catch (err) {
+    res.status(500).send(err);
+  }
 }
 
 // PUT
@@ -58,20 +60,23 @@ async function insertMany(req: Request, res: Response) {
 }
 
 async function login(req: Request, res: Response) {
-  const { email, password } = req.body;
-  const user = await User.findOne({ email: email, password: password });
-  if (user) {
-    res.status(200).send(user);
-  } else {
-    res.status(401).send("User not found");
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email: email, password: password });
+    if (user) {
+      res.status(200).send(user);
+    } else {
+      res.status(401).send("User not found");
+    }
+  } catch (err) {
+    res.status(500).send(err);
   }
-  return;
 }
 
 // DELETE
 async function removeAll(req: Request, res: Response) {
   return User.deleteMany()
-    .then((result) => {
+    .then(() => {
       res.status(200).send("All users have been removed");
     })
     .catch((err) => {
@@ -81,7 +86,7 @@ async function removeAll(req: Request, res: Response) {
 
 async function removeById(req: Request, res: Response) {
   return User.findByIdAndDelete(req.params.pocketId)
-    .then((result) => {
+    .then(() => {
       res.status(200).send("User has been removed");
     })
     .catch((err) => {

@@ -6,6 +6,7 @@ export interface IUser {
   lastName: string;
   email: string;
   password: string;
+  unallocated: number;
 }
 
 const userSchema = new Schema<IUser>(
@@ -18,6 +19,7 @@ const userSchema = new Schema<IUser>(
       unique: true,
     },
     password: { type: String, required: true },
+    unallocated: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

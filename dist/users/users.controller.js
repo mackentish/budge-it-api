@@ -27,13 +27,18 @@ function list(req, res) {
 }
 function getById(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        return users_model_1.default.findById(req.params.userId)
-            .then((result) => {
-            res.status(200).send(result);
-        })
-            .catch((err) => {
+        try {
+            const user = yield users_model_1.default.findById(req.params.userId).exec();
+            if (user) {
+                res.status(200).send(user);
+            }
+            else {
+                res.status(401).send("User not found");
+            }
+        }
+        catch (err) {
             res.status(500).send(err);
-        });
+        }
     });
 }
 // PUT
@@ -75,22 +80,26 @@ function insertMany(req, res) {
 }
 function login(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { email, password } = req.body;
-        const user = yield users_model_1.default.findOne({ email: email, password: password });
-        if (user) {
-            res.status(200).send(user);
+        try {
+            const { email, password } = req.body;
+            const user = yield users_model_1.default.findOne({ email: email, password: password });
+            if (user) {
+                res.status(200).send(user);
+            }
+            else {
+                res.status(401).send("User not found");
+            }
         }
-        else {
-            res.status(401).send("User not found");
+        catch (err) {
+            res.status(500).send(err);
         }
-        return;
     });
 }
 // DELETE
 function removeAll(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         return users_model_1.default.deleteMany()
-            .then((result) => {
+            .then(() => {
             res.status(200).send("All users have been removed");
         })
             .catch((err) => {
@@ -101,7 +110,7 @@ function removeAll(req, res) {
 function removeById(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         return users_model_1.default.findByIdAndDelete(req.params.pocketId)
-            .then((result) => {
+            .then(() => {
             res.status(200).send("User has been removed");
         })
             .catch((err) => {
