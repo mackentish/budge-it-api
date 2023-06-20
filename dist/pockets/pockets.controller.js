@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const pockets_model_1 = __importDefault(require("./pockets.model"));
+const users_model_1 = __importDefault(require("../users/users.model"));
 // GET
 function list(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -39,13 +40,50 @@ function getById(req, res) {
 // PUT
 function updateById(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        return pockets_model_1.default.findByIdAndUpdate(req.params.pocketId, req.body, { new: true })
-            .then((result) => {
-            res.status(200).send(result);
-        })
-            .catch((err) => {
+        try {
+            const newPocketData = req.body;
+            const existingPocketData = yield pockets_model_1.default.findById(req.params.pocketId).exec();
+            if (!existingPocketData) {
+                res.status(404).send("Pocket not found");
+                return;
+            }
+            const pocketUser = yield users_model_1.default.findById(existingPocketData.user).exec();
+            if (!pocketUser) {
+                res.status(404).send("User not found");
+                return;
+            }
+            // add funds to pocket
+            if (newPocketData.amount > existingPocketData.amount) {
+                // validate that there is enough in unallocated to remove
+                const amountChanged = newPocketData.amount - existingPocketData.amount;
+                if (amountChanged > pocketUser.unallocated) {
+                    res.status(400).send("Insufficient funds in unallocated");
+                    return;
+                }
+                else {
+                    // remove amountChanged from unallocated
+                    pocketUser.unallocated -= amountChanged;
+                    yield pocketUser.save();
+                    // add amountChanged to pocket
+                    existingPocketData.amount = newPocketData.amount;
+                    yield existingPocketData.save();
+                    res.status(201).send(existingPocketData);
+                }
+            }
+            // remove funds from pocket
+            else {
+                // remove funds from pocket and add same amount to unallocated
+                const amountChanged = existingPocketData.amount - newPocketData.amount;
+                pocketUser.unallocated += amountChanged;
+                yield pocketUser.save();
+                existingPocketData.amount = newPocketData.amount;
+                yield existingPocketData.save();
+                res.status(201).send(existingPocketData);
+            }
+        }
+        catch (err) {
             res.status(500).send(err);
-        });
+        }
     });
 }
 // POST
