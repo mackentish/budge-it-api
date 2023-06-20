@@ -73,15 +73,19 @@ async function updateById(req: Request, res: Response) {
 
 // POST
 async function insert(req: Request, res: Response) {
-  const pocket = new Pocket(req.body);
-  return pocket
-    .save()
-    .then((result) => {
-      res.status(201).send(result);
-    })
-    .catch((err) => {
-      res.status(500).send(err);
-    });
+  try {
+    // only allow a user to have a 10 pocket maximum
+    const numPockets = await Pocket.count({ user: req.params.userId }).exec();
+    if (numPockets >= 10) {
+      res.status(400).send("Unable to insert pocket. User is at maximum");
+    } else {
+      const pocket = new Pocket(req.body);
+      await pocket.save();
+      res.status(201).send(pocket);
+    }
+  } catch (err) {
+    res.status(500).send(err);
+  }
 }
 
 async function insertMany(req: Request, res: Response) {
