@@ -7,7 +7,7 @@ export default function routesConfig(app: Express) {
 
   app.put("/pockets/:pocketId", [PocketsController.updateById]);
 
-  app.post("/pockets/:userId", [PocketsController.insert]);
+  app.post("/pockets", [PocketsController.insert]);
   app.post("/pockets/many", [PocketsController.insertMany]);
 
   app.delete("/pockets/:userId", [PocketsController.removeAll]);

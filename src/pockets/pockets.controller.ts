@@ -75,7 +75,7 @@ async function updateById(req: Request, res: Response) {
 async function insert(req: Request, res: Response) {
   try {
     // only allow a user to have a 10 pocket maximum
-    const numPockets = await Pocket.count({ user: req.params.userId }).exec();
+    const numPockets = await Pocket.count({ user: req.body.user }).exec();
     if (numPockets >= 10) {
       res.status(400).send("Unable to insert pocket. User is at maximum");
     } else {
