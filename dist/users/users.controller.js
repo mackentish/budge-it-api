@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const users_model_1 = __importDefault(require("./users.model"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
 // GET
 function list(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -56,7 +57,7 @@ function updateById(req, res) {
 // POST
 function insert(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const user = new users_model_1.default(req.body);
+        const user = new users_model_1.default(Object.assign(Object.assign({}, req.body), { password: yield bcrypt_1.default.hash(req.body.password, process.env.SALT) }));
         return user
             .save()
             .then((result) => {
@@ -82,7 +83,8 @@ function login(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const { email, password } = req.body;
-            const user = yield users_model_1.default.findOne({ email: email, password: password });
+            const hashedPassword = yield bcrypt_1.default.hash(password, process.env.SALT);
+            const user = yield users_model_1.default.findOne({ email: email, password: hashedPassword });
             if (user) {
                 res.status(200).send(user);
             }

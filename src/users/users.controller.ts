@@ -1,5 +1,6 @@
 import User from "./users.model";
 import { Request, Response } from "express";
+import bcrypt from "bcrypt";
 
 // GET
 async function list(req: Request, res: Response) {
@@ -38,7 +39,10 @@ async function updateById(req: Request, res: Response) {
 
 // POST
 async function insert(req: Request, res: Response) {
-  const user = new User(req.body);
+  const user = new User({
+    ...req.body,
+    password: await bcrypt.hash(req.body.password, process.env.SALT!),
+  });
   return user
     .save()
     .then((result) => {
@@ -62,7 +66,8 @@ async function insertMany(req: Request, res: Response) {
 async function login(req: Request, res: Response) {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email: email, password: password });
+    const hashedPassword = await bcrypt.hash(password, process.env.SALT!);
+    const user = await User.findOne({ email: email, password: hashedPassword });
     if (user) {
       res.status(200).send(user);
     } else {

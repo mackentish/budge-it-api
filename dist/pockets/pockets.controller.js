@@ -89,15 +89,21 @@ function updateById(req, res) {
 // POST
 function insert(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const pocket = new pockets_model_1.default(req.body);
-        return pocket
-            .save()
-            .then((result) => {
-            res.status(201).send(result);
-        })
-            .catch((err) => {
+        try {
+            // only allow a user to have a 10 pocket maximum
+            const numPockets = yield pockets_model_1.default.count({ user: req.body.user }).exec();
+            if (numPockets >= 10) {
+                res.status(400).send("Unable to insert pocket. User is at maximum");
+            }
+            else {
+                const pocket = new pockets_model_1.default(req.body);
+                yield pocket.save();
+                res.status(201).send(pocket);
+            }
+        }
+        catch (err) {
             res.status(500).send(err);
-        });
+        }
     });
 }
 function insertMany(req, res) {
