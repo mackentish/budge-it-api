@@ -14,6 +14,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const users_model_1 = __importDefault(require("./users.model"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const authentication_1 = require("../middleware/authentication");
 // GET
 function list(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -60,19 +62,11 @@ function insert(req, res) {
         const user = new users_model_1.default(Object.assign(Object.assign({}, req.body), { password: yield bcrypt_1.default.hash(req.body.password, process.env.SALT) }));
         return user
             .save()
-            .then((result) => {
-            res.status(201).send(result);
-        })
-            .catch((err) => {
-            res.status(500).send(err);
-        });
-    });
-}
-function insertMany(req, res) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return users_model_1.default.insertMany(req.body)
-            .then((result) => {
-            res.status(201).send(result);
+            .then((user) => {
+            res.status(201).send({
+                user: user,
+                tokens: generateTokens(user.email),
+            });
         })
             .catch((err) => {
             res.status(500).send(err);
@@ -89,7 +83,10 @@ function login(req, res) {
                 password: hashedPassword,
             });
             if (user) {
-                res.status(200).send(user);
+                res.status(200).send({
+                    user: user,
+                    tokens: generateTokens(email),
+                });
             }
             else {
                 res.status(401).send('User not found');
@@ -99,6 +96,19 @@ function login(req, res) {
             res.status(500).send(err);
         }
     });
+}
+function refreshToken(req, res) {
+    const { email, refreshToken } = req.body;
+    const isValid = (0, authentication_1.verifyRefresh)(email, refreshToken);
+    if (!isValid) {
+        return res
+            .status(401)
+            .json({ success: false, error: 'Invalid token, try login again' });
+    }
+    const accessToken = jsonwebtoken_1.default.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: '2m',
+    });
+    return res.status(200).json({ success: true, accessToken });
 }
 // DELETE
 function removeAll(req, res) {
@@ -123,13 +133,23 @@ function removeById(req, res) {
         });
     });
 }
+// Helpers
+function generateTokens(email) {
+    const accessToken = jsonwebtoken_1.default.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: '2m',
+    });
+    const refreshToken = jsonwebtoken_1.default.sign({ email: email }, process.env.REFRESH_TOKEN_SECRET, {
+        expiresIn: '10m',
+    });
+    return { accessToken, refreshToken };
+}
 exports.default = {
     list,
     getById,
     updateById,
     insert,
-    insertMany,
     login,
     removeAll,
     removeById,
+    refreshToken,
 };

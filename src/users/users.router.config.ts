@@ -1,16 +1,20 @@
 import UsersController from './users.controller';
 import { Express } from 'express';
+import { isAuthenticated } from '../middleware/authentication';
 
 export default function routesConfig(app: Express) {
-    app.get('/users', [UsersController.list]);
-    app.get('/users/:userId', [UsersController.getById]);
+    // this router is different because we have to allow unauthenticated users to create an account and log in
+    // therefore we need to pass the isAuthenticated middleware to all routes except the ones that create an account or log in
 
-    app.put('/users/:userId', [UsersController.updateById]);
+    app.get('/users', [isAuthenticated, UsersController.list]);
+    app.get('/users/:userId', [isAuthenticated, UsersController.getById]);
+
+    app.put('/users/:userId', [isAuthenticated, UsersController.updateById]);
 
     app.post('/users', [UsersController.insert]);
-    app.post('/users/many', [UsersController.insertMany]);
     app.post('/users/login', [UsersController.login]);
+    app.post('/users/refresh', [UsersController.refreshToken]);
 
-    app.delete('/users', [UsersController.removeAll]);
-    app.delete('/users/:userId', [UsersController.removeById]);
+    //app.delete('/users', [UsersController.removeAll]); //only used for testing
+    app.delete('/users/:userId', [isAuthenticated, UsersController.removeById]);
 }

@@ -4,7 +4,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const pockets_controller_1 = __importDefault(require("./pockets.controller"));
+const authentication_1 = require("../middleware/authentication");
 function routesConfig(app) {
+    // routes at the top of the function are matched first
+    app.use('/pockets', authentication_1.isAuthenticated);
     app.get('/pockets/:userId', [pockets_controller_1.default.list]);
     app.get('/pockets/:pocketId', [pockets_controller_1.default.getById]);
     app.put('/pockets/:pocketId', [pockets_controller_1.default.updateById]);
