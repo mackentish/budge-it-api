@@ -6,4 +6,4 @@ const pocketSchema = new mongoose_1.Schema({
     amount: { type: Number, required: true },
     user: { type: String, required: true },
 }, { timestamps: true });
-exports.default = (0, mongoose_1.model)("Pockets", pocketSchema);
+exports.default = (0, mongoose_1.model)('Pockets', pocketSchema);

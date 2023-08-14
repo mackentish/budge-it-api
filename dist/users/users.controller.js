@@ -34,7 +34,7 @@ function getById(req, res) {
                 res.status(200).send(user);
             }
             else {
-                res.status(401).send("User not found");
+                res.status(401).send('User not found');
             }
         }
         catch (err) {
@@ -84,12 +84,15 @@ function login(req, res) {
         try {
             const { email, password } = req.body;
             const hashedPassword = yield bcrypt_1.default.hash(password, process.env.SALT);
-            const user = yield users_model_1.default.findOne({ email: email, password: hashedPassword });
+            const user = yield users_model_1.default.findOne({
+                email: email,
+                password: hashedPassword,
+            });
             if (user) {
                 res.status(200).send(user);
             }
             else {
-                res.status(401).send("User not found");
+                res.status(401).send('User not found');
             }
         }
         catch (err) {
@@ -102,7 +105,7 @@ function removeAll(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         return users_model_1.default.deleteMany()
             .then(() => {
-            res.status(200).send("All users have been removed");
+            res.status(200).send('All users have been removed');
         })
             .catch((err) => {
             res.status(500).send(err);
@@ -113,7 +116,7 @@ function removeById(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         return users_model_1.default.findByIdAndDelete(req.params.pocketId)
             .then(() => {
-            res.status(200).send("User has been removed");
+            res.status(200).send('User has been removed');
         })
             .catch((err) => {
             res.status(500).send(err);

@@ -44,12 +44,12 @@ function updateById(req, res) {
             const newPocketData = req.body;
             const existingPocketData = yield pockets_model_1.default.findById(req.params.pocketId).exec();
             if (!existingPocketData) {
-                res.status(404).send("Pocket not found");
+                res.status(404).send('Pocket not found');
                 return;
             }
             const pocketUser = yield users_model_1.default.findById(existingPocketData.user).exec();
             if (!pocketUser) {
-                res.status(404).send("User not found");
+                res.status(404).send('User not found');
                 return;
             }
             // add funds to pocket
@@ -57,7 +57,7 @@ function updateById(req, res) {
                 // validate that there is enough in unallocated to remove
                 const amountChanged = newPocketData.amount - existingPocketData.amount;
                 if (amountChanged > pocketUser.unallocated) {
-                    res.status(400).send("Insufficient funds in unallocated");
+                    res.status(400).send('Insufficient funds in unallocated');
                     return;
                 }
                 else {
@@ -93,7 +93,7 @@ function insert(req, res) {
             // only allow a user to have a 10 pocket maximum
             const numPockets = yield pockets_model_1.default.count({ user: req.body.user }).exec();
             if (numPockets >= 10) {
-                res.status(400).send("Unable to insert pocket. User is at maximum");
+                res.status(400).send('Unable to insert pocket. User is at maximum');
             }
             else {
                 const pocket = new pockets_model_1.default(req.body);
@@ -121,8 +121,8 @@ function insertMany(req, res) {
 function removeAll(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         return pockets_model_1.default.deleteMany({ user: req.params.userId })
-            .then((result) => {
-            res.status(200).send("All pockets have been removed");
+            .then(() => {
+            res.status(200).send('All pockets have been removed');
         })
             .catch((err) => {
             res.status(500).send(err);
@@ -132,8 +132,8 @@ function removeAll(req, res) {
 function removeById(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         return pockets_model_1.default.findByIdAndDelete(req.params.pocketId)
-            .then((result) => {
-            res.status(200).send("Pocket has been removed");
+            .then(() => {
+            res.status(200).send('Pocket has been removed');
         })
             .catch((err) => {
             res.status(500).send(err);
