@@ -99,16 +99,12 @@ function login(req, res) {
 }
 function refreshToken(req, res) {
     const { email, refreshToken } = req.body;
-    const isValid = (0, authentication_1.verifyRefresh)(email, refreshToken);
+    const isValid = (0, authentication_1.verifyRefresh)(refreshToken);
     if (!isValid) {
-        return res
-            .status(401)
-            .json({ success: false, error: 'Invalid token, try login again' });
+        return res.status(401).send('Invalid token, try login again');
     }
-    const accessToken = jsonwebtoken_1.default.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: '2m',
-    });
-    return res.status(200).json({ success: true, accessToken });
+    const tokens = generateTokens(email);
+    return res.status(200).json(Object.assign({ success: true }, tokens));
 }
 // DELETE
 function removeAll(req, res) {

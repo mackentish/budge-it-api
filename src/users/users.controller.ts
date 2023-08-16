@@ -81,20 +81,12 @@ async function login(req: Request, res: Response) {
 
 function refreshToken(req: Request, res: Response) {
     const { email, refreshToken } = req.body;
-    const isValid = verifyRefresh(email, refreshToken);
+    const isValid = verifyRefresh(refreshToken);
     if (!isValid) {
-        return res
-            .status(401)
-            .json({ success: false, error: 'Invalid token, try login again' });
+        return res.status(401).send('Invalid token, try login again');
     }
-    const accessToken = jwt.sign(
-        { email: email },
-        process.env.ACCESS_TOKEN_SECRET!,
-        {
-            expiresIn: '2m',
-        }
-    );
-    return res.status(200).json({ success: true, accessToken });
+    const tokens = generateTokens(email);
+    return res.status(200).json({ success: true, ...tokens });
 }
 
 // DELETE

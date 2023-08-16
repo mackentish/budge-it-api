@@ -13,8 +13,7 @@ function isAuthenticated(req, res, next) {
             return res.status(404).json('Token not found');
         }
         token = token.split(' ')[1];
-        const decoded = jsonwebtoken_1.default.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        req.email = decoded.email;
+        jsonwebtoken_1.default.verify(token, process.env.ACCESS_TOKEN_SECRET);
         next();
     }
     catch (error) {
@@ -22,10 +21,10 @@ function isAuthenticated(req, res, next) {
     }
 }
 exports.isAuthenticated = isAuthenticated;
-function verifyRefresh(email, token) {
+function verifyRefresh(token) {
     try {
-        const decoded = jsonwebtoken_1.default.verify(token, process.env.REFRESH_TOKEN_SECRET);
-        return decoded.email === email;
+        jsonwebtoken_1.default.verify(token, process.env.REFRESH_TOKEN_SECRET);
+        return true;
     }
     catch (error) {
         return false;
