@@ -2,7 +2,6 @@ import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 
 function isAuthenticated(req: Request, res: Response, next: NextFunction) {
-    console.log('test', req.get('authorization'));
     try {
         let token = req.get('authorization');
         if (!token) {

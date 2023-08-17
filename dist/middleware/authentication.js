@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyRefresh = exports.isAuthenticated = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 function isAuthenticated(req, res, next) {
-    console.log('test', req.get('authorization'));
     try {
         let token = req.get('authorization');
         if (!token) {
