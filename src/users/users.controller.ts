@@ -81,12 +81,15 @@ async function login(req: Request, res: Response) {
 
 function refreshToken(req: Request, res: Response) {
     const { email, refreshToken } = req.body;
+    if (!refreshToken || !email) {
+        return res.status(400).send('Missing token or email');
+    }
     const isValid = verifyRefresh(refreshToken);
     if (!isValid) {
         return res.status(401).send('Invalid token, try login again');
     }
     const tokens = generateTokens(email);
-    return res.status(200).json({ success: true, ...tokens });
+    return res.status(201).send(tokens);
 }
 
 // DELETE

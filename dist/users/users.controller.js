@@ -99,12 +99,15 @@ function login(req, res) {
 }
 function refreshToken(req, res) {
     const { email, refreshToken } = req.body;
+    if (!refreshToken || !email) {
+        return res.status(400).send('Missing token or email');
+    }
     const isValid = (0, authentication_1.verifyRefresh)(refreshToken);
     if (!isValid) {
         return res.status(401).send('Invalid token, try login again');
     }
     const tokens = generateTokens(email);
-    return res.status(200).json(Object.assign({ success: true }, tokens));
+    return res.status(201).send(tokens);
 }
 // DELETE
 function removeAll(req, res) {
