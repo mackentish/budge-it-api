@@ -1,26 +1,17 @@
 import Pocket from './pockets.model';
 import User from '../users/users.model';
 import { Request, Response } from 'express';
-import { extractEmailFromToken } from '../middleware/authentication';
+import { getUserFromToken } from '../middleware/authentication';
 
 // GET
 async function list(req: Request, res: Response) {
-    let userEmail: string;
-    try {
-        userEmail = extractEmailFromToken(req);
-    } catch {
-        return res.status(401).json('Not authorized');
-    }
-    const user = await User.findOne({ email: userEmail });
-    if (!user) {
-        return res.status(401).send('User not found');
-    }
+    const user = await getUserFromToken(req);
     return Pocket.find({ user: user._id })
         .then((result) => {
-            res.status(200).send(result);
+            return res.status(200).send(result);
         })
         .catch((err) => {
-            res.status(500).send(err);
+            return res.status(500).send(err);
         });
 }
 
@@ -85,30 +76,18 @@ async function updateById(req: Request, res: Response) {
 }
 
 // POST
-async function insert(req: Request, res: Response) {
+async function create(req: Request, res: Response) {
     try {
-        // only allow a user to have a 10 pocket maximum
-        const numPockets = await Pocket.count({ user: req.body.user }).exec();
-        if (numPockets >= 10) {
-            res.status(400).send('Unable to insert pocket. User is at maximum');
-        } else {
-            const pocket = new Pocket(req.body);
-            await pocket.save();
-            res.status(201).send(pocket);
-        }
+        const user = await getUserFromToken(req);
+        const pocket = new Pocket({
+            ...req.body,
+            user: user._id,
+        });
+        await pocket.save();
+        res.status(201).send(pocket);
     } catch (err) {
         res.status(500).send(err);
     }
-}
-
-async function insertMany(req: Request, res: Response) {
-    return Pocket.insertMany(req.body)
-        .then((result) => {
-            res.status(201).send(result);
-        })
-        .catch((err) => {
-            res.status(500).send(err);
-        });
 }
 
 // DELETE
@@ -136,8 +115,7 @@ export default {
     list,
     getById,
     updateById,
-    insert,
-    insertMany,
+    create,
     removeAll,
     removeById,
 };

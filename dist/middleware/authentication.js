@@ -1,10 +1,20 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.extractEmailFromToken = exports.verifyRefresh = exports.isAuthenticated = void 0;
+exports.getUserFromToken = exports.verifyRefresh = exports.isAuthenticated = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const users_model_1 = __importDefault(require("../users/users.model"));
 function isAuthenticated(req, res, next) {
     try {
         let token = req.get('authorization');
@@ -30,13 +40,19 @@ function verifyRefresh(token) {
     }
 }
 exports.verifyRefresh = verifyRefresh;
-function extractEmailFromToken(req) {
-    let token = req.get('authorization');
-    if (!token) {
-        throw new Error('Token not found');
-    }
-    token = token.split(' ')[1];
-    const decoded = jsonwebtoken_1.default.decode(token);
-    return decoded.email;
+function getUserFromToken(req) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let token = req.get('authorization');
+        if (!token) {
+            throw new Error('Token not found');
+        }
+        token = token.split(' ')[1];
+        const decoded = jsonwebtoken_1.default.decode(token);
+        const user = yield users_model_1.default.findOne({ email: decoded.email });
+        if (!user) {
+            throw new Error('User not found');
+        }
+        return user;
+    });
 }
-exports.extractEmailFromToken = extractEmailFromToken;
+exports.getUserFromToken = getUserFromToken;

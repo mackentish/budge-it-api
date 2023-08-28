@@ -3,6 +3,9 @@ import { Express } from 'express';
 import { isAuthenticated } from '../middleware/authentication';
 
 export default function routesConfig(app: Express) {
+    if (process.env.NODE_ENV === 'development') {
+        app.delete('/pockets', [PocketsController.removeAll]);
+    }
     // routes at the top of the function are matched first
     app.use('/pockets', isAuthenticated);
 
@@ -11,9 +14,7 @@ export default function routesConfig(app: Express) {
 
     app.put('/pockets/:pocketId', [PocketsController.updateById]);
 
-    app.post('/pockets', [PocketsController.insert]);
-    app.post('/pockets/many', [PocketsController.insertMany]);
+    app.post('/pockets', [PocketsController.create]);
 
-    app.delete('/pockets/:userId', [PocketsController.removeAll]);
     app.delete('/pockets/:pocketId', [PocketsController.removeById]);
 }

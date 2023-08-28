@@ -13,55 +13,32 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const groups_model_1 = __importDefault(require("./groups.model"));
-const users_model_1 = __importDefault(require("../users/users.model"));
 const pockets_model_1 = __importDefault(require("../pockets/pockets.model"));
 const authentication_1 = require("../middleware/authentication");
 // GET
 function list(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        let userEmail;
-        try {
-            userEmail = (0, authentication_1.extractEmailFromToken)(req);
-        }
-        catch (_a) {
-            return res.status(401).json('Not authorized');
-        }
-        const user = yield users_model_1.default.findOne({ email: userEmail });
-        if (!user) {
-            return res.status(401).send('User not found');
-        }
+        const user = yield (0, authentication_1.getUserFromToken)(req);
         return groups_model_1.default.find({ user: user._id })
             .populate('pockets')
             .then((result) => {
-            res.status(200).send(result);
+            return res.status(200).send(result);
         })
             .catch((err) => {
-            res.status(500).send(err);
+            return res.status(500).send(err);
         });
     });
 }
 function create(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            let userEmail;
-            try {
-                userEmail = (0, authentication_1.extractEmailFromToken)(req);
-            }
-            catch (_a) {
-                return res.status(401).json('Not authorized');
-            }
+            const user = yield (0, authentication_1.getUserFromToken)(req);
             const newGroupData = req.body;
             // validate data
             if (!newGroupData.name ||
                 !newGroupData.pockets ||
                 newGroupData.pockets.length === 0) {
                 return res.status(400).send('Missing required fields');
-            }
-            // validate that pockets exist and belong to user
-            // validate that pockets are not already in a group
-            const user = yield users_model_1.default.findOne({ email: userEmail });
-            if (!user) {
-                return res.status(401).send('User not found');
             }
             // validate pocket ids
             const pockets = yield pockets_model_1.default.find({

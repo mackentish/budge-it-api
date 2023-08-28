@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
+import User from '../users/users.model';
 
 export function isAuthenticated(
     req: Request,
@@ -28,12 +29,16 @@ export function verifyRefresh(token: string) {
     }
 }
 
-export function extractEmailFromToken(req: Request) {
+export async function getUserFromToken(req: Request) {
     let token = req.get('authorization');
     if (!token) {
         throw new Error('Token not found');
     }
     token = token.split(' ')[1];
     const decoded = jwt.decode(token) as jwt.JwtPayload;
-    return decoded.email;
+    const user = await User.findOne({ email: decoded.email });
+    if (!user) {
+        throw new Error('User not found');
+    }
+    return user;
 }
