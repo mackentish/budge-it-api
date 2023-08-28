@@ -1,7 +1,11 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 
-function isAuthenticated(req: Request, res: Response, next: NextFunction) {
+export function isAuthenticated(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
     try {
         let token = req.get('authorization');
         if (!token) {
@@ -15,7 +19,7 @@ function isAuthenticated(req: Request, res: Response, next: NextFunction) {
     }
 }
 
-function verifyRefresh(token: string) {
+export function verifyRefresh(token: string) {
     try {
         jwt.verify(token, process.env.REFRESH_TOKEN_SECRET!);
         return true;
@@ -24,4 +28,12 @@ function verifyRefresh(token: string) {
     }
 }
 
-export { isAuthenticated, verifyRefresh };
+export function extractEmailFromToken(req: Request) {
+    let token = req.get('authorization');
+    if (!token) {
+        throw new Error('Token not found');
+    }
+    token = token.split(' ')[1];
+    const decoded = jwt.decode(token) as jwt.JwtPayload;
+    return decoded.email;
+}

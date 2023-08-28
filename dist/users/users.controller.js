@@ -135,10 +135,10 @@ function removeById(req, res) {
 // Helpers
 function generateTokens(email) {
     const accessToken = jsonwebtoken_1.default.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: '2m',
+        expiresIn: process.env.NODE_ENV === 'development' ? '15m' : '2m',
     });
     const refreshToken = jsonwebtoken_1.default.sign({ email: email }, process.env.REFRESH_TOKEN_SECRET, {
-        expiresIn: '10m',
+        expiresIn: process.env.NODE_ENV === 'development' ? '30m' : '10m',
     });
     return { accessToken, refreshToken };
 }

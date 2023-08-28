@@ -1,10 +1,21 @@
 import Pocket from './pockets.model';
 import User from '../users/users.model';
 import { Request, Response } from 'express';
+import { extractEmailFromToken } from '../middleware/authentication';
 
 // GET
 async function list(req: Request, res: Response) {
-    return Pocket.find({ user: req.params.userId })
+    let userEmail: string;
+    try {
+        userEmail = extractEmailFromToken(req);
+    } catch {
+        return res.status(401).json('Not authorized');
+    }
+    const user = await User.findOne({ email: userEmail });
+    if (!user) {
+        return res.status(401).send('User not found');
+    }
+    return Pocket.find({ user: user._id })
         .then((result) => {
             res.status(200).send(result);
         })

@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
 import PocketsRouter from './pockets/pockets.router.config';
 import UsersRouter from './users/users.router.config';
+import GroupsRouter from './pocketGroups/groups.router.config';
 
 // Connect to MongoDB database
 mongoose.connect('mongodb://localhost:27017/budge-it-DB').then(() => {
@@ -26,6 +27,7 @@ mongoose.connect('mongodb://localhost:27017/budge-it-DB').then(() => {
 
     PocketsRouter(app);
     UsersRouter(app);
+    GroupsRouter(app);
 
     app.listen(PORT, function () {
         console.log('app listening at port %s', PORT);

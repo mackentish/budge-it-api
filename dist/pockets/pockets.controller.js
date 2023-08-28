@@ -14,10 +14,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const pockets_model_1 = __importDefault(require("./pockets.model"));
 const users_model_1 = __importDefault(require("../users/users.model"));
+const authentication_1 = require("../middleware/authentication");
 // GET
 function list(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        return pockets_model_1.default.find({ user: req.params.userId })
+        let userEmail;
+        try {
+            userEmail = (0, authentication_1.extractEmailFromToken)(req);
+        }
+        catch (_a) {
+            return res.status(401).json('Not authorized');
+        }
+        const user = yield users_model_1.default.findOne({ email: userEmail });
+        if (!user) {
+            return res.status(401).send('User not found');
+        }
+        return pockets_model_1.default.find({ user: user._id })
             .then((result) => {
             res.status(200).send(result);
         })

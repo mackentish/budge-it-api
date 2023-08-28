@@ -8,7 +8,7 @@ const authentication_1 = require("../middleware/authentication");
 function routesConfig(app) {
     // routes at the top of the function are matched first
     app.use('/pockets', authentication_1.isAuthenticated);
-    app.get('/pockets/:userId', [pockets_controller_1.default.list]);
+    app.get('/pockets', [pockets_controller_1.default.list]);
     app.get('/pockets/:pocketId', [pockets_controller_1.default.getById]);
     app.put('/pockets/:pocketId', [pockets_controller_1.default.updateById]);
     app.post('/pockets', [pockets_controller_1.default.insert]);
