@@ -64,7 +64,7 @@ async function create(req: Request, res: Response) {
             { _id: { $in: newGroupData.pockets } },
             { groupId: newGroup._id }
         );
-        return res.status(201).send('Group created');
+        return res.status(201).send(newGroup);
     } catch (err) {
         return res.status(500).send(err);
     }

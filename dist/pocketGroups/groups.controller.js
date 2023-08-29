@@ -61,7 +61,7 @@ function create(req, res) {
             // if all validations pass, create group and update pockets
             const newGroup = yield groups_model_1.default.create(Object.assign(Object.assign({}, newGroupData), { user: user._id }));
             yield pockets_model_1.default.updateMany({ _id: { $in: newGroupData.pockets } }, { groupId: newGroup._id });
-            return res.status(201).send('Group created');
+            return res.status(201).send(newGroup);
         }
         catch (err) {
             return res.status(500).send(err);
