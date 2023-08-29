@@ -104,8 +104,8 @@ async function removeAll(req: Request, res: Response) {
 async function removeById(req: Request, res: Response) {
     const user = await getUserFromToken(req);
     return Pocket.findOneAndDelete({ _id: req.params.pocketId, user: user._id })
-        .then(() => {
-            res.status(202).send('Pocket has been removed');
+        .then((result) => {
+            res.status(202).send(result);
         })
         .catch((err) => {
             res.status(500).send(err);
