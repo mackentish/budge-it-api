@@ -116,9 +116,10 @@ function removeAll(req, res) {
 }
 function removeById(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        return pockets_model_1.default.findByIdAndDelete(req.params.pocketId)
+        const user = yield (0, authentication_1.getUserFromToken)(req);
+        return pockets_model_1.default.findOneAndDelete({ _id: req.params.pocketId, user: user._id })
             .then(() => {
-            res.status(200).send('Pocket has been removed');
+            res.status(202).send('Pocket has been removed');
         })
             .catch((err) => {
             res.status(500).send(err);
