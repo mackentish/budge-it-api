@@ -1,5 +1,5 @@
 import Pocket from './pockets.model';
-import User from '../users/users.model';
+import Group from '../pocketGroups/groups.model';
 import { Request, Response } from 'express';
 import { getUserFromToken } from '../middleware/authentication';
 
@@ -29,7 +29,7 @@ async function getById(req: Request, res: Response) {
 async function updateById(req: Request, res: Response) {
     try {
         const user = await getUserFromToken(req);
-        const newPocketData = req.body as { name: string };
+        const newPocketData = req.body as { name: string; groupId?: string };
         const existingPocketData = await Pocket.findOne({
             _id: req.params.pocketId,
             user: user._id,
@@ -40,6 +40,19 @@ async function updateById(req: Request, res: Response) {
 
         // update pocket
         existingPocketData.name = newPocketData.name;
+        if (newPocketData.groupId) {
+            existingPocketData.groupId = newPocketData.groupId;
+            // update group
+            const existingGroup = await Group.findOne({
+                _id: newPocketData.groupId,
+                user: user._id,
+            }).exec();
+            if (!existingGroup) {
+                return res.status(404).send('Group not found');
+            }
+            existingGroup.pockets.push(existingPocketData);
+            await existingGroup.save();
+        }
         await existingPocketData.save();
         return res.status(202).send(existingPocketData);
     } catch (err) {

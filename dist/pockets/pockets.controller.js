@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const pockets_model_1 = __importDefault(require("./pockets.model"));
+const groups_model_1 = __importDefault(require("../pocketGroups/groups.model"));
 const authentication_1 = require("../middleware/authentication");
 // GET
 function list(req, res) {
@@ -53,6 +54,19 @@ function updateById(req, res) {
             }
             // update pocket
             existingPocketData.name = newPocketData.name;
+            if (newPocketData.groupId) {
+                existingPocketData.groupId = newPocketData.groupId;
+                // update group
+                const existingGroup = yield groups_model_1.default.findOne({
+                    _id: newPocketData.groupId,
+                    user: user._id,
+                }).exec();
+                if (!existingGroup) {
+                    return res.status(404).send('Group not found');
+                }
+                existingGroup.pockets.push(existingPocketData);
+                yield existingGroup.save();
+            }
             yield existingPocketData.save();
             return res.status(202).send(existingPocketData);
         }
