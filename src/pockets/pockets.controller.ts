@@ -28,50 +28,22 @@ async function getById(req: Request, res: Response) {
 // PUT
 async function updateById(req: Request, res: Response) {
     try {
-        const newPocketData = req.body as { name: string; amount: number };
-        const existingPocketData = await Pocket.findById(
-            req.params.pocketId
-        ).exec();
+        const user = await getUserFromToken(req);
+        const newPocketData = req.body as { name: string };
+        const existingPocketData = await Pocket.findOne({
+            _id: req.params.pocketId,
+            user: user._id,
+        }).exec();
         if (!existingPocketData) {
-            res.status(404).send('Pocket not found');
-            return;
+            return res.status(404).send('Pocket not found');
         }
-        const pocketUser = await User.findById(existingPocketData.user).exec();
-        if (!pocketUser) {
-            res.status(404).send('User not found');
-            return;
-        }
-        // add funds to pocket
-        if (newPocketData.amount > existingPocketData.amount) {
-            // validate that there is enough in unallocated to remove
-            const amountChanged =
-                newPocketData.amount - existingPocketData.amount;
-            if (amountChanged > pocketUser.unallocated) {
-                res.status(400).send('Insufficient funds in unallocated');
-                return;
-            } else {
-                // remove amountChanged from unallocated
-                pocketUser.unallocated -= amountChanged;
-                await pocketUser.save();
-                // add amountChanged to pocket
-                existingPocketData.amount = newPocketData.amount;
-                await existingPocketData.save();
-                res.status(201).send(existingPocketData);
-            }
-        }
-        // remove funds from pocket
-        else {
-            // remove funds from pocket and add same amount to unallocated
-            const amountChanged =
-                existingPocketData.amount - newPocketData.amount;
-            pocketUser.unallocated += amountChanged;
-            await pocketUser.save();
-            existingPocketData.amount = newPocketData.amount;
-            await existingPocketData.save();
-            res.status(201).send(existingPocketData);
-        }
+
+        // update pocket
+        existingPocketData.name = newPocketData.name;
+        await existingPocketData.save();
+        return res.status(202).send(existingPocketData);
     } catch (err) {
-        res.status(500).send(err);
+        return res.status(500).send(err);
     }
 }
 
