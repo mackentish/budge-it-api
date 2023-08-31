@@ -12,4 +12,6 @@ export default function routesConfig(app: Express) {
     app.get('/groups', [GroupsController.list]);
 
     app.post('/groups', [GroupsController.create]);
+
+    app.delete('/groups/:groupId', [GroupsController.removeById]);
 }

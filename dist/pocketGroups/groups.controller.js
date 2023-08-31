@@ -69,16 +69,32 @@ function create(req, res) {
     });
 }
 // DELETE
+function removeById(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const user = yield (0, authentication_1.getUserFromToken)(req);
+            const deletedGroup = yield groups_model_1.default.findOneAndDelete({
+                user: user._id,
+                _id: req.params.groupId,
+            });
+            yield pockets_model_1.default.updateMany({ groupId: req.params.groupId }, { groupId: null });
+            res.status(202).send(deletedGroup);
+        }
+        catch (err) {
+            return res.status(500).send(err);
+        }
+    });
+}
 function removeAll(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const { deletedCount } = yield groups_model_1.default.deleteMany({});
             const { matchedCount } = yield pockets_model_1.default.updateMany({ groupId: { $ne: undefined } }, { groupId: null });
-            res.status(200).send(`Deleted ${deletedCount} groups and updated ${matchedCount} pockets`);
+            res.status(202).send(`Deleted ${deletedCount} groups and updated ${matchedCount} pockets`);
         }
         catch (err) {
             res.status(500).send(err);
         }
     });
 }
-exports.default = { list, create, removeAll };
+exports.default = { list, create, removeById, removeAll };

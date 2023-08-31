@@ -12,5 +12,6 @@ function routesConfig(app) {
     app.use('/groups', authentication_1.isAuthenticated);
     app.get('/groups', [groups_controller_1.default.list]);
     app.post('/groups', [groups_controller_1.default.create]);
+    app.delete('/groups/:groupId', [groups_controller_1.default.removeById]);
 }
 exports.default = routesConfig;

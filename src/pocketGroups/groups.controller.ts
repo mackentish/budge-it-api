@@ -71,6 +71,23 @@ async function create(req: Request, res: Response) {
 }
 
 // DELETE
+async function removeById(req: Request, res: Response) {
+    try {
+        const user = await getUserFromToken(req);
+        const deletedGroup = await Group.findOneAndDelete({
+            user: user._id,
+            _id: req.params.groupId,
+        });
+        await Pocket.updateMany(
+            { groupId: req.params.groupId },
+            { groupId: null }
+        );
+        res.status(202).send(deletedGroup);
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+}
+
 async function removeAll(req: Request, res: Response) {
     try {
         const { deletedCount } = await Group.deleteMany({});
@@ -78,7 +95,7 @@ async function removeAll(req: Request, res: Response) {
             { groupId: { $ne: undefined } },
             { groupId: null }
         );
-        res.status(200).send(
+        res.status(202).send(
             `Deleted ${deletedCount} groups and updated ${matchedCount} pockets`
         );
     } catch (err) {
@@ -86,4 +103,4 @@ async function removeAll(req: Request, res: Response) {
     }
 }
 
-export default { list, create, removeAll };
+export default { list, create, removeById, removeAll };
