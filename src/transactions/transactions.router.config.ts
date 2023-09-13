@@ -9,5 +9,8 @@ export default function routesConfig(app: Express) {
     // routes at the top of the function are matched first
     app.use('/transactions', isAuthenticated);
 
+    app.get('/transactions', [TransactionsController.list]);
+    app.get('/transactions/:transactionId', [TransactionsController.getById]);
+
     app.post('/transactions', [TransactionsController.create]);
 }

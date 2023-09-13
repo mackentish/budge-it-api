@@ -2,6 +2,28 @@ import Transaction from './transactions.model';
 import { Request, Response } from 'express';
 import { getUserFromToken } from '../middleware/authentication';
 
+// GET
+async function list(req: Request, res: Response) {
+    const user = await getUserFromToken(req);
+    return Transaction.find({ user: user._id })
+        .then((result) => {
+            return res.status(200).send(result);
+        })
+        .catch((err) => {
+            return res.status(500).send(err);
+        });
+}
+
+async function getById(req: Request, res: Response) {
+    return Transaction.findById(req.params.transactionId)
+        .then((result) => {
+            res.status(200).send(result);
+        })
+        .catch((err) => {
+            res.status(500).send(err);
+        });
+}
+
 // POST
 async function create(req: Request, res: Response) {
     try {
@@ -24,7 +46,8 @@ async function create(req: Request, res: Response) {
 
 // DELETE
 async function removeAll(req: Request, res: Response) {
-    return Transaction.deleteMany({ user: req.params.userId })
+    const user = await getUserFromToken(req);
+    return Transaction.deleteMany({ user: user._id })
         .then(() => {
             return res
                 .status(200)
@@ -36,6 +59,8 @@ async function removeAll(req: Request, res: Response) {
 }
 
 export default {
+    list,
+    getById,
     create,
     removeAll,
 };
