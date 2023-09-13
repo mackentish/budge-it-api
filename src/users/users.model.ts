@@ -1,12 +1,11 @@
 import { Schema, model } from 'mongoose';
-import { IPocket } from '../pockets/pockets.model';
 
 export interface IUser {
     firstName: string;
     lastName: string;
     email: string;
     password: string;
-    unallocated: number;
+    tags: string[];
 }
 
 const userSchema = new Schema<IUser>(
@@ -19,7 +18,7 @@ const userSchema = new Schema<IUser>(
             unique: true,
         },
         password: { type: String, required: true },
-        unallocated: { type: Number, default: 0 },
+        tags: { type: [String], required: true, default: [] },
     },
     { timestamps: true }
 );
