@@ -2,7 +2,7 @@ import User from './users.model';
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { verifyRefresh } from '../middleware/authentication';
+import { getUserFromToken, verifyRefresh } from '../middleware/authentication';
 
 // GET
 async function list(req: Request, res: Response) {
@@ -79,6 +79,21 @@ async function login(req: Request, res: Response) {
     }
 }
 
+async function addTag(req: Request, res: Response) {
+    const user = await getUserFromToken(req);
+    return User.findByIdAndUpdate(
+        user._id,
+        { $push: { tags: req.body.tag } },
+        { new: true }
+    )
+        .then((result) => {
+            return res.status(200).send(result);
+        })
+        .catch((err) => {
+            return res.status(500).send(err);
+        });
+}
+
 function refreshToken(req: Request, res: Response) {
     const { email, refreshToken } = req.body;
     if (!refreshToken || !email) {
@@ -138,7 +153,8 @@ export default {
     updateById,
     insert,
     login,
+    addTag,
+    refreshToken,
     removeAll,
     removeById,
-    refreshToken,
 };

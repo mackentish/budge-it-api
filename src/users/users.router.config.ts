@@ -14,6 +14,7 @@ export default function routesConfig(app: Express) {
     app.post('/users', [UsersController.insert]);
     app.post('/users/login', [UsersController.login]);
     app.post('/users/refresh', [UsersController.refreshToken]);
+    app.post('/users/tags', [isAuthenticated, UsersController.addTag]);
 
     //app.delete('/users', [UsersController.removeAll]); //only used for testing
     app.delete('/users/:userId', [isAuthenticated, UsersController.removeById]);
