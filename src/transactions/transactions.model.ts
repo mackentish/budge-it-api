@@ -5,9 +5,13 @@ export interface ITransaction {
     name: string;
     amount: number;
     date: Date;
-    /** Pocket ID or 'external' if not coming from a pocket */
+    /** Pocket ID or 'external' if not coming from a pocket.
+     * This is where the money is coming _from_
+     */
     inflow: string;
-    /** Pocket ID or 'external' if not coming from a pocket */
+    /** Pocket ID or 'external' if not coming from a pocket.
+     * This is where the money is going _to_
+     */
     outflow: string;
     tags?: string[];
     note?: string;

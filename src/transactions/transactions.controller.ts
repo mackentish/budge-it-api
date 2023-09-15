@@ -1,4 +1,5 @@
 import Transaction from './transactions.model';
+import Pocket from '../pockets/pockets.model';
 import { Request, Response } from 'express';
 import { getUserFromToken } from '../middleware/authentication';
 
@@ -38,6 +39,18 @@ async function create(req: Request, res: Response) {
             user: user._id,
         });
         await transaction.save();
+        // decrease the amount in the inflow pocket
+        if (transaction.inflow != 'external') {
+            Pocket.findByIdAndUpdate(transaction.inflow, {
+                $inc: { amount: -transaction.amount },
+            }).exec();
+        }
+        // increase the amount in the outflow pocket
+        if (transaction.outflow != 'external') {
+            Pocket.findByIdAndUpdate(transaction.outflow, {
+                $inc: { amount: transaction.amount },
+            }).exec();
+        }
         return res.status(201).send(transaction);
     } catch (err) {
         return res.status(500).send(err);
