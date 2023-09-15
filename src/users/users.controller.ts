@@ -30,13 +30,33 @@ async function getById(req: Request, res: Response) {
 
 // PUT
 async function updateById(req: Request, res: Response) {
-    return User.findByIdAndUpdate(req.params.userId, req.body, { new: true })
+    const user = await getUserFromToken(req);
+    return User.findByIdAndUpdate(user._id, req.body, { new: true })
         .then((result) => {
             res.status(200).send(result);
         })
         .catch((err) => {
             res.status(500).send(err);
         });
+}
+
+function findAndReplaceTag(tags: string[], oldTag: string, newTag: string) {
+    const index = tags.indexOf(oldTag);
+    if (index !== -1) {
+        tags[index] = newTag;
+    }
+    return tags;
+}
+async function updateTag(req: Request, res: Response) {
+    try {
+        const user = await getUserFromToken(req);
+        const { oldTag, newTag } = req.body;
+        user.tags = findAndReplaceTag(user.tags, oldTag, newTag);
+        user.save();
+        return res.status(200).send(user);
+    } catch (err) {
+        return res.status(500).send(err);
+    }
 }
 
 // POST
@@ -151,6 +171,7 @@ export default {
     list,
     getById,
     updateById,
+    updateTag,
     insert,
     login,
     addTag,

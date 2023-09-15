@@ -9,7 +9,8 @@ export default function routesConfig(app: Express) {
     app.get('/users', [isAuthenticated, UsersController.list]);
     app.get('/users/:userId', [isAuthenticated, UsersController.getById]);
 
-    app.put('/users/:userId', [isAuthenticated, UsersController.updateById]);
+    app.put('/users/', [isAuthenticated, UsersController.updateById]);
+    app.put('/users/tags', [isAuthenticated, UsersController.updateTag]);
 
     app.post('/users', [UsersController.insert]);
     app.post('/users/login', [UsersController.login]);
