@@ -26,7 +26,6 @@ export function verifyRefresh(token: string, email: string) {
             token,
             process.env.REFRESH_TOKEN_SECRET!
         ) as { email: string };
-        console.log(decoded);
         return decoded.email === email;
     } catch (error) {
         return false;
