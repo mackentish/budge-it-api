@@ -119,7 +119,7 @@ function refreshToken(req: Request, res: Response) {
     if (!refreshToken || !email) {
         return res.status(400).send('Missing token or email');
     }
-    const isValid = verifyRefresh(refreshToken);
+    const isValid = verifyRefresh(refreshToken, email);
     if (!isValid) {
         return res.status(401).send('Invalid token, try login again');
     }

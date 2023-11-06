@@ -20,10 +20,14 @@ export function isAuthenticated(
     }
 }
 
-export function verifyRefresh(token: string) {
+export function verifyRefresh(token: string, email: string) {
     try {
-        jwt.verify(token, process.env.REFRESH_TOKEN_SECRET!);
-        return true;
+        const decoded = jwt.verify(
+            token,
+            process.env.REFRESH_TOKEN_SECRET!
+        ) as { email: string };
+        console.log(decoded);
+        return decoded.email === email;
     } catch (error) {
         return false;
     }
