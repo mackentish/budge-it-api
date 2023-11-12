@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
 import mysql from 'mysql';
+import { Sequelize } from 'sequelize';
 import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
@@ -8,25 +8,32 @@ import UsersRouter from './users/users.router.config';
 import GroupsRouter from './pocketGroups/groups.router.config';
 import TransactionsRouter from './transactions/transactions.router.config';
 
-// Connect to mysql database
-const connection = mysql.createConnection({
-    host: process.env.DB_HOST || 'localhost',
-    port: (process.env.DB_PORT || 3306) as number,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: 'budge_it_DB',
-});
-connection.connect(function (err) {
-    if (err) {
-        console.error('error connecting: ' + err.stack);
-        return;
+async function initializeDatabase() {
+    dotenv.config();
+
+    const HOST = process.env.DB_HOST || 'localhost';
+    const DB_PORT = (process.env.DB_PORT || 3306) as number;
+    const USER = process.env.DB_USER!;
+    const PASSWORD = process.env.DB_PASSWORD!;
+    const DATABASE = 'budge-it';
+
+    // Connect to mysql database using sequelize
+    const sequelize = new Sequelize(DATABASE, USER, PASSWORD, {
+        host: HOST,
+        port: DB_PORT,
+        dialect: 'mysql',
+    });
+    try {
+        await sequelize.authenticate();
+        console.log('Connection has been established successfully.');
+        sequelize.close();
+    } catch (error) {
+        console.error('Unable to connect to the database:', error);
     }
+}
+initializeDatabase();
 
-    console.log('connected as id ' + connection.threadId);
-});
-
-// Connect to MongoDB database
-mongoose.connect('mongodb://localhost:27017/budge-it-DB').then(() => {
+/*
     const jsonErrorHandler = (
         err: any,
         req: Request,
@@ -36,10 +43,8 @@ mongoose.connect('mongodb://localhost:27017/budge-it-DB').then(() => {
         res.status(500).send({ error: err });
     };
 
-    dotenv.config();
-
     const app: Express = express();
-    const PORT = process.env.PORT || 3001;
+    const APP_PORT = process.env.PORT || 3001;
     app.use(bodyParser.json());
     app.use(jsonErrorHandler);
     app.use(express.json());
@@ -49,7 +54,7 @@ mongoose.connect('mongodb://localhost:27017/budge-it-DB').then(() => {
     GroupsRouter(app);
     TransactionsRouter(app);
 
-    app.listen(PORT, function () {
-        console.log('app listening at port %s', PORT);
+    app.listen(APP_PORT, function () {
+        console.log('app listening at port %s', APP_PORT);
     });
-});
+    */
