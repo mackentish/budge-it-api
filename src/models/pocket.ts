@@ -26,7 +26,7 @@ export default async function DefinePocket(sequelize: Sequelize) {
         },
         groupId: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: true,
         },
     });
     console.log('Pocket model created: ', Pocket === sequelize.models.Pocket);
