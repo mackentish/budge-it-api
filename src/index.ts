@@ -7,6 +7,7 @@ import PocketsRouter from './pockets/pockets.router.config';
 import UsersRouter from './users/users.router.config';
 import GroupsRouter from './pocketGroups/groups.router.config';
 import TransactionsRouter from './transactions/transactions.router.config';
+import DefineModels from './models';
 
 async function initializeDatabase() {
     dotenv.config();
@@ -26,7 +27,8 @@ async function initializeDatabase() {
     try {
         await sequelize.authenticate();
         console.log('Connection has been established successfully.');
-        sequelize.close();
+        await DefineModels(sequelize);
+        await sequelize.close();
     } catch (error) {
         console.error('Unable to connect to the database:', error);
     }
