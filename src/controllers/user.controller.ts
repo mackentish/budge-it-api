@@ -7,7 +7,7 @@ import { Tag, User, UserType } from '../models';
 // GET
 async function getById(req: Request, res: Response) {
     try {
-        const user = await User.findByPk(req.params.userId);
+        const user = await User.findByPk(req.params.userId, { include: Tag });
         if (user) {
             res.status(200).send(user);
         } else {
@@ -40,13 +40,6 @@ async function updateById(req: Request, res: Response) {
     }
 }
 
-function findAndReplaceTag(tags: string[], oldTag: string, newTag: string) {
-    const index = tags.indexOf(oldTag);
-    if (index !== -1) {
-        tags[index] = newTag;
-    }
-    return tags;
-}
 async function updateTag(req: Request, res: Response) {
     try {
         const user = await getUserFromToken(req);
@@ -54,22 +47,25 @@ async function updateTag(req: Request, res: Response) {
             oldTag: string;
             newTag: string;
         };
-        const userTags = await Tag.findAll({
-            where: { userId: user.id },
+        // check if old tag exists
+        const existingTag = await Tag.findOne({
+            where: { userId: user.id, name: oldTag },
         });
-        const updatedUser = await User.update(
-            {
-                tags: findAndReplaceTag(
-                    userTags.map((t) => t.name),
-                    oldTag,
-                    newTag
-                ),
-            },
-            {
-                where: { id: user.id },
-            }
-        );
-        return res.status(200).send(updatedUser);
+        if (!existingTag) {
+            return res.status(400).send('Tag not found');
+        }
+        // check if new name already exists
+        const alreadyTaken = await Tag.findOne({
+            where: { name: newTag, userId: user.id },
+        });
+        // if it does, return error
+        if (alreadyTaken) {
+            return res.status(400).send('Tag already exists');
+        }
+        // update tag
+        existingTag.name = newTag;
+        await existingTag.save();
+        return res.status(200).send(existingTag);
     } catch (err) {
         return res.status(500).send(err);
     }
@@ -103,6 +99,7 @@ async function login(req: Request, res: Response) {
                 email: email,
                 password: hashedPassword,
             },
+            include: Tag,
         });
         if (user) {
             res.status(200).send({
@@ -120,6 +117,13 @@ async function login(req: Request, res: Response) {
 async function addTag(req: Request, res: Response) {
     try {
         const user = await getUserFromToken(req);
+        // check if tag already exists
+        const existingTag = await Tag.findOne({
+            where: { name: req.body.tag, userId: user.id },
+        });
+        if (existingTag) {
+            return res.status(400).send('Tag already exists');
+        }
         const tag = await Tag.create({
             name: req.body.tag,
             userId: user.id,
@@ -144,15 +148,6 @@ function refreshToken(req: Request, res: Response) {
 }
 
 // DELETE
-async function removeAll(req: Request, res: Response) {
-    try {
-        await User.destroy();
-        return res.status(200).send('All users have been removed');
-    } catch (err) {
-        return res.status(500).send(err);
-    }
-}
-
 async function removeById(req: Request, res: Response) {
     try {
         await User.destroy({ where: { id: req.params.userId } });
@@ -189,6 +184,5 @@ export default {
     login,
     addTag,
     refreshToken,
-    removeAll,
     removeById,
 };

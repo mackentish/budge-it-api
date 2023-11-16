@@ -42,28 +42,25 @@ async function create(req: Request, res: Response) {
             return res.status(400).send('One or more pocket ids are invalid');
         }
         // validate that pockets are not already in a group
-        const pocketsInGroup = await Pocket.findAll({
-            where: {
-                id: { [Op.in]: newGroupData.pockets },
-                groupId: { [Op.ne]: null },
-            },
-        });
-        if (pocketsInGroup.length > 0) {
+        const pocketsInOtherGroups = pockets.filter((p) => !!p.groupId);
+        if (pocketsInOtherGroups.length > 0) {
             return res
                 .status(400)
                 .send('One or more pockets are already in a group');
         }
 
         // if all validations pass, create group and update pockets
-        const newGroup = await PocketGroup.create(
+        const newGroup = await PocketGroup.create({
+            name: newGroupData.name,
+            note: newGroupData.note,
+            userId: user.id,
+        });
+        await Pocket.update(
             {
-                name: newGroupData.name,
-                note: newGroupData.note,
-                Pockets: pockets.map((p) => ({ id: p })),
-                userId: user.id,
+                groupId: newGroup.id,
             },
             {
-                include: [Pocket],
+                where: { id: { [Op.in]: newGroupData.pockets } },
             }
         );
         return res.status(201).send(newGroup);
@@ -90,7 +87,10 @@ async function removeById(req: Request, res: Response) {
 
 async function removeAll(req: Request, res: Response) {
     try {
-        const deletedCount = await PocketGroup.destroy();
+        const user = await getUserFromToken(req);
+        const deletedCount = await PocketGroup.destroy({
+            where: { userId: user.id },
+        });
         res.status(202).send(`Deleted ${deletedCount} groups`);
     } catch (err) {
         res.status(500).send(err);
