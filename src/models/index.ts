@@ -1,16 +1,13 @@
-import DefineUser from './user';
-import DefinePocket from './pocket';
-import DefinePocketGroup from './pocketGroup';
-import DefineTag from './tag';
-import DefineTransaction from './transaction';
+import { User, UserType } from './user.model';
+import { Pocket, PocketType } from './pocket.model';
+import { PocketGroup, PocketGroupType } from './pocketGroup.model';
+import { Tag, TagType } from './tag.model';
+import { Transaction, TransactionType } from './transaction.model';
+import sequelize from './sequelize';
 
-export default async function DefineModels(sequelize: any) {
-    // define models
-    const User = await DefineUser(sequelize);
-    const Pocket = await DefinePocket(sequelize);
-    const PocketGroup = await DefinePocketGroup(sequelize);
-    const Tag = await DefineTag(sequelize);
-    const Transaction = await DefineTransaction(sequelize);
+export default async function SyncModels() {
+    await sequelize.authenticate();
+    console.log('Connection has been established successfully.');
 
     // define relationships
     User.hasMany(Pocket, { foreignKey: 'userId' });
@@ -37,4 +34,32 @@ export default async function DefineModels(sequelize: any) {
 
     // sync models to database
     await sequelize.sync({ alter: true });
+
+    // verify models are synced
+    if (User !== sequelize.models.User) {
+        throw new Error('User model not synced properly');
+    } else if (Pocket !== sequelize.models.Pocket) {
+        throw new Error('Pocket model not synced properly');
+    } else if (PocketGroup !== sequelize.models.PocketGroup) {
+        throw new Error('PocketGroup model not synced properly');
+    } else if (Tag !== sequelize.models.Tag) {
+        throw new Error('Tag model not synced properly');
+    } else if (Transaction !== sequelize.models.Transaction) {
+        throw new Error('Transaction model not synced properly');
+    }
+    console.log('Models synced successfully.');
 }
+
+export {
+    sequelize,
+    User,
+    UserType,
+    Pocket,
+    PocketType,
+    PocketGroup,
+    PocketGroupType,
+    Tag,
+    TagType,
+    Transaction,
+    TransactionType,
+};
