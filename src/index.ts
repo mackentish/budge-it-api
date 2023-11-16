@@ -1,37 +1,38 @@
-import mongoose from 'mongoose';
 import express, { Express, Request, Response } from 'express';
-import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
-import PocketsRouter from './pockets/pockets.router.config';
-import UsersRouter from './users/users.router.config';
-import GroupsRouter from './pocketGroups/groups.router.config';
-import TransactionsRouter from './transactions/transactions.router.config';
+import PocketsRouter from './routers/pocket.router.config';
+import UsersRouter from './routers/user.router.config';
+import GroupsRouter from './routers/pocketGroup.router.config';
+import TransactionsRouter from './routers/transaction.router.config';
+import SyncModels, { sequelize, Pocket, User } from './models';
 
-// Connect to MongoDB database
-mongoose.connect('mongodb://localhost:27017/budge-it-DB').then(() => {
-    const jsonErrorHandler = (
-        err: any,
-        req: Request,
-        res: Response,
-        next: any
-    ) => {
-        res.status(500).send({ error: err });
-    };
+SyncModels()
+    .then(() => {
+        const jsonErrorHandler = (
+            err: any,
+            req: Request,
+            res: Response,
+            next: any
+        ) => {
+            res.status(500).send({ error: err });
+        };
 
-    dotenv.config();
+        const app: Express = express();
+        const APP_PORT = process.env.PORT || 3001;
+        app.use(bodyParser.json());
+        app.use(jsonErrorHandler);
+        app.use(express.json());
 
-    const app: Express = express();
-    const PORT = process.env.PORT || 3001;
-    app.use(bodyParser.json());
-    app.use(jsonErrorHandler);
-    app.use(express.json());
+        PocketsRouter(app);
+        UsersRouter(app);
+        GroupsRouter(app);
+        TransactionsRouter(app);
 
-    PocketsRouter(app);
-    UsersRouter(app);
-    GroupsRouter(app);
-    TransactionsRouter(app);
-
-    app.listen(PORT, function () {
-        console.log('app listening at port %s', PORT);
+        app.listen(APP_PORT, function () {
+            console.log('app listening at port %s', APP_PORT);
+        });
+    })
+    .catch(async (error) => {
+        console.error('Error connecting/syncing with database:', error);
+        await sequelize.close();
     });
-});
