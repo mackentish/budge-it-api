@@ -14,6 +14,7 @@ const sequelize = new Sequelize(DATABASE, USER, PASSWORD, {
     host: HOST,
     port: DB_PORT,
     dialect: 'mysql',
+    dialectOptions: { decimalNumbers: true },
     logging: false, // TODO: log to a cloud resource when deployed
 });
 
