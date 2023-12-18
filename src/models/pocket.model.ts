@@ -41,7 +41,7 @@ Pocket.init(
     },
     {
         sequelize,
-        modelName: 'Pocket',
+        modelName: 'pocket',
     }
 );
 

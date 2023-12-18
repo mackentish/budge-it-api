@@ -9,6 +9,7 @@ async function list(req: Request, res: Response) {
         const user = await getUserFromToken(req);
         const pocketGroups = await PocketGroup.findAll({
             where: { userId: user.id },
+            include: { model: Pocket, required: true },
         });
         return res.status(200).send(pocketGroups);
     } catch (err) {

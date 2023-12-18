@@ -31,7 +31,7 @@ PocketGroup.init(
     },
     {
         sequelize,
-        modelName: 'PocketGroup',
+        modelName: 'pocketGroup',
     }
 );
 

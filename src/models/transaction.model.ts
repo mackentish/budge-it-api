@@ -59,7 +59,7 @@ Transaction.init(
     },
     {
         sequelize,
-        modelName: 'Transaction',
+        modelName: 'transaction',
     }
 );
 

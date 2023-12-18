@@ -7,7 +7,9 @@ import { Tag, User, UserType } from '../models';
 // GET
 async function getById(req: Request, res: Response) {
     try {
-        const user = await User.findByPk(req.params.userId, { include: Tag });
+        const user = await User.findByPk(req.params.userId, {
+            include: { model: Tag, required: false },
+        });
         if (user) {
             res.status(200).send(user);
         } else {
@@ -99,7 +101,7 @@ async function login(req: Request, res: Response) {
                 email: email,
                 password: hashedPassword,
             },
-            include: Tag,
+            include: { model: Tag, required: false },
         });
         if (user) {
             res.status(200).send({

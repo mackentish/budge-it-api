@@ -26,7 +26,7 @@ Tag.init(
     },
     {
         sequelize,
-        modelName: 'Tag',
+        modelName: 'tag',
     }
 );
 
