@@ -76,8 +76,8 @@ async function removeById(req: Request, res: Response) {
         const user = await getUserFromToken(req);
         await PocketGroup.destroy({
             where: {
-                user: user.id,
-                id: req.params.groupId,
+                userId: user.id,
+                id: req.params.pocketGroupsId,
             },
         });
         res.status(202).send('Group has been removed');
