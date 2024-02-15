@@ -101,11 +101,18 @@ async function login(req: Request, res: Response) {
                 email: email,
                 password: hashedPassword,
             },
-            include: { model: Tag, required: false },
+            include: {
+                model: Tag,
+                attributes: ['name'],
+                required: false,
+            },
         });
         if (user) {
             res.status(200).send({
-                user: user,
+                user: {
+                    ...user.dataValues,
+                    tags: user.dataValues.tags.map((tag: any) => tag.name),
+                },
                 tokens: generateTokens(email),
             });
         } else {
